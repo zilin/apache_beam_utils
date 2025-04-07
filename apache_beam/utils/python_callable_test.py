@@ -17,7 +17,6 @@
 import os
 import unittest
 
-import apache_beam as beam
 from apache_beam.utils.python_callable import PythonCallableWithSource
 
 
