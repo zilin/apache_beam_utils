@@ -43,12 +43,12 @@ class PythonCallableWithSource(object):
 
   is a valid chunk of source code.
   """
-  def __init__(self, source: str) -> None:
+  def __init__(self, source: str, exec_globals={}) -> None:
     self._source = source
-    self._callable = self.load_from_source(source)
+    self._callable = self.load_from_source(source, exec_globals)
 
   @classmethod
-  def load_from_source(cls, source):
+  def load_from_source(cls, source, exec_globals={}):
     if source in __builtins__:
       return cls.load_from_expression(source)
     elif all(s.isidentifier() for s in source.split('.')):
@@ -57,7 +57,7 @@ class PythonCallableWithSource(object):
       else:
         return cls.load_from_fully_qualified_name(source)
     else:
-      return cls.load_from_script(source)
+      return cls.load_from_script(source, exec_globals=exec_globals)
 
   @staticmethod
   def load_from_expression(source):
@@ -76,7 +76,7 @@ class PythonCallableWithSource(object):
     return o
 
   @staticmethod
-  def load_from_script(source, method_name=None):
+  def load_from_script(source, method_name=None, exec_globals={}):
     lines = [
         line for line in source.split('\n')
         if line.strip() and line.strip()[0] != '#'
@@ -100,10 +100,8 @@ class PythonCallableWithSource(object):
         raise ValueError("Unable to identify callable from %r" % source)
 
     # pylint: disable=exec-used
-    # pylint: disable=ungrouped-imports
-    import apache_beam as beam
-    exec_globals = {'beam': beam}
     exec('\n'.join(lines), exec_globals)
+    print(f'exec_globals={exec_globals}')
     return exec_globals[method_name]
 
   @property
