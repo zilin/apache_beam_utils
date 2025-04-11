@@ -101,7 +101,6 @@ class PythonCallableWithSource(object):
 
     # pylint: disable=exec-used
     exec('\n'.join(lines), exec_globals)
-    print(f'exec_globals={exec_globals}')
     return exec_globals[method_name]
 
   @property
